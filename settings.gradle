@@ -1,0 +1,3 @@
+include ':appiniter-lib'
+include ':app'
+rootProject.name = "AppIniter"
