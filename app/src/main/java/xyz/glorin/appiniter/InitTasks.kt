@@ -13,3 +13,39 @@ class FrescoTask : InitTask() {
     }
 
 }
+
+class AppDTask : InitTask() {
+    override val identifier: String
+        get() = "appd"
+    override val dependencies: List<String>?
+        get() = null
+
+    override fun run() {
+        Thread.sleep(200L)
+    }
+
+}
+
+class GlideTask : InitTask() {
+    override val identifier: String
+        get() = "glide"
+    override val dependencies: List<String>?
+        get() = null
+
+    override fun run() {
+        Thread.sleep(200L)
+    }
+
+}
+
+class LogTask : InitTask() {
+    override val identifier: String
+        get() = "log"
+    override val dependencies: List<String>?
+        get() = null
+
+    override fun run() {
+        Thread.sleep(200L)
+    }
+
+}

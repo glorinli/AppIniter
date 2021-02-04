@@ -1,9 +1,10 @@
-package xyz.glorin.appiniter_lib
+package xyz.glorin.appiniter_lib.simple
 
 import android.os.SystemClock
+import xyz.glorin.appiniter_lib.AbstractAppIniter
+import xyz.glorin.appiniter_lib.InitTask
 
-class DefaultAppIniter : AppIniter {
-    override var listener: AppIniter.Listener? = null
+class SimpleAppIniter : AbstractAppIniter() {
     private val tasks = mutableListOf<InitTask>()
 
     override fun addTask(task: InitTask) {
@@ -14,7 +15,9 @@ class DefaultAppIniter : AppIniter {
         val start = SystemClock.uptimeMillis()
         listener?.onStartExecute()
         tasks.forEach {
+            val taskStart = SystemClock.uptimeMillis()
             it.run()
+            listener?.onTaskComplete(it.identifier, SystemClock.uptimeMillis() - taskStart)
         }
         listener?.onEndExecute(SystemClock.uptimeMillis() - start)
     }

@@ -13,6 +13,10 @@ class DemoApplication : Application() {
             Log.i(TAG, "Initer executed, costed: $costMillis ms")
         }
 
+        override fun onTaskComplete(identifier: String, costMillis: Long) {
+            Log.i(TAG, "Init task complete: $identifier, cost: $costMillis ms")
+        }
+
     }
 
     override fun onCreate() {
@@ -21,6 +25,9 @@ class DemoApplication : Application() {
         val initer = AppIniter.get()
         initer.listener = initerListener
         initer.addTask(FrescoTask())
+        initer.addTask(AppDTask())
+        initer.addTask(LogTask())
+        initer.addTask(GlideTask())
         initer.run()
     }
 
