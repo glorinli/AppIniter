@@ -1,11 +1,13 @@
 package xyz.glorin.appiniter_lib.multithread
 
 import androidx.annotation.CallSuper
+import xyz.glorin.appiniter_lib.DebugLog
 import xyz.glorin.appiniter_lib.InitTask
 import java.util.concurrent.LinkedBlockingDeque
 
 abstract class AbstractTaskExecuter : TaskExecuter {
     private val tasks = mutableListOf<InitTask>()
+    private val waitingTasks = mutableListOf<InitTask>()
     private val tasksToExecute = LinkedBlockingDeque<InitTask>()
 
     override fun addTask(task: InitTask) {
@@ -15,13 +17,25 @@ abstract class AbstractTaskExecuter : TaskExecuter {
     @CallSuper
     override fun start() {
         // Offer available tasks
+        TaskDispatcher.runTask {
+            waitingTasks.addAll(tasks)
+        }
         scheduleExecutableTasks()
     }
 
     private fun scheduleExecutableTasks() {
-        tasks.forEach {
-            if (!TaskStatusManager.isTaskComplete(it.identifier) && allDependenciesComplete(it)) {
-                tasksToExecute.offer(it)
+        TaskDispatcher.runTask {
+            waitingTasks.iterator().run {
+                while (hasNext()) {
+                    val task = next()
+                    val allDependenciesComplete = allDependenciesComplete(task)
+                    DebugLog.d(TAG, "allDep complete of ${task.identifier}: $allDependenciesComplete")
+                    if (allDependenciesComplete) {
+                        tasksToExecute.offer(task)
+                        DebugLog.d(TAG, "offer task: ${task.identifier}")
+                        remove()
+                    }
+                }
             }
         }
     }
@@ -56,5 +70,9 @@ abstract class AbstractTaskExecuter : TaskExecuter {
         }
 
         return true
+    }
+
+    companion object {
+        private const val TAG = "AbstractTaskExecuter"
     }
 }

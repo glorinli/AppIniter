@@ -28,6 +28,8 @@ class DemoApplication : Application() {
         initer.addTask(AppDTask())
         initer.addTask(LogTask())
         initer.addTask(GlideTask())
+        initer.addTask(GreenDaoTask())
+        initer.addTask(FirebaseTask())
         initer.run()
     }
 

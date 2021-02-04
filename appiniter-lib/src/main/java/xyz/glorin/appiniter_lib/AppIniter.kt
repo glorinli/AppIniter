@@ -1,5 +1,6 @@
 package xyz.glorin.appiniter_lib
 
+import xyz.glorin.appiniter_lib.multithread.MultiThreadAppIniter
 import xyz.glorin.appiniter_lib.simple.SimpleAppIniter
 
 interface AppIniter {
@@ -8,7 +9,8 @@ interface AppIniter {
     fun run()
 
     companion object {
-        private val initer = SimpleAppIniter()
+//        private val initer = SimpleAppIniter()
+        private val initer = MultiThreadAppIniter()
         fun get() = initer
     }
 
