@@ -45,13 +45,7 @@ abstract class AbstractTaskExecuter : TaskExecuter {
     }
 
     fun allComplete(): Boolean {
-        tasks.forEach {
-            if (!TaskStatusManager.isTaskComplete(it.identifier)) {
-                return false
-            }
-        }
-
-        return true
+        return TaskStatusManager.allComplete(tasks)
     }
 
     fun nextExecutableTask(): InitTask? {

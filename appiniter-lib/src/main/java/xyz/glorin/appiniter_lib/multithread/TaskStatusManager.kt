@@ -1,6 +1,7 @@
 package xyz.glorin.appiniter_lib.multithread
 
 import xyz.glorin.appiniter_lib.DebugLog
+import xyz.glorin.appiniter_lib.InitTask
 import java.util.concurrent.ConcurrentHashMap
 
 object TaskStatusManager {
@@ -27,6 +28,16 @@ object TaskStatusManager {
 
     fun removeListener(listener: Listener) {
         listeners.remove(listener)
+    }
+
+    fun allComplete(tasks: List<InitTask>): Boolean {
+        tasks.forEach {
+            if (!isTaskComplete(it.identifier)) {
+                return false
+            }
+        }
+
+        return true
     }
 
     interface Listener {

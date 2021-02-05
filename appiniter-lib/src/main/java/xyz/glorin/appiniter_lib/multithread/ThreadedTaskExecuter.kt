@@ -1,6 +1,7 @@
 package xyz.glorin.appiniter_lib.multithread
 
 import android.os.SystemClock
+import xyz.glorin.appiniter_lib.DebugLog
 
 class ThreadedTaskExecuter: AbstractTaskExecuter() {
     override fun start() {
@@ -21,6 +22,8 @@ class ThreadedTaskExecuter: AbstractTaskExecuter() {
                     )
                 }
             }
+
+            DebugLog.d("ThreadedTaskExecuter", "All completed")
         }
     }
 }
