@@ -7,6 +7,7 @@ abstract class AbstractAppIniter : AppIniter {
 
     protected val tasks = mutableListOf<InitTask>()
     private val taskIds = mutableSetOf<String>()
+    private val dependedCountMap = mutableMapOf<String, Int>()
 
     override fun addTask(task: InitTask) {
         tasks.add(task)
@@ -20,6 +21,7 @@ abstract class AbstractAppIniter : AppIniter {
 
     final override fun run() {
         checkDependencies()
+        sortTasks()
         onRun()
     }
 
@@ -29,10 +31,19 @@ abstract class AbstractAppIniter : AppIniter {
                 if (!taskIds.contains(d)) {
                     throw IllegalStateException("No task found for id: $d, required for task: ${it.identifier}")
                 }
+
+                dependedCountMap[d] = (dependedCountMap[d] ?: 0) + 1
             }
         }
 
         // TODO Check cycling dependencies
+    }
+
+    /**
+     * Sort, more depended, run first
+     */
+    private fun sortTasks() {
+        tasks.sortByDescending { dependedCountMap[it.identifier] }
     }
 
     abstract fun onRun()
