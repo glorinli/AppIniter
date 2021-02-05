@@ -5,7 +5,7 @@ import xyz.glorin.appiniter_lib.AbstractAppIniter
 import xyz.glorin.appiniter_lib.InitTask
 
 class SimpleAppIniter : AbstractAppIniter() {
-    override fun run() {
+    override fun onRun() {
         val start = SystemClock.uptimeMillis()
         listener?.onStartExecute()
         tasks.forEach {

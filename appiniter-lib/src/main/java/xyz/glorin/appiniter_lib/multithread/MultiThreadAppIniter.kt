@@ -8,7 +8,7 @@ class MultiThreadAppIniter : AbstractAppIniter(), TaskStatusManager.Listener {
     private val threadedTaskExecuter = ThreadedTaskExecuter()
     private val allCompleteSignal = AllCompleteSignal()
 
-    override fun run() {
+    override fun onRun() {
         listener?.onStartExecute()
 
         TaskDispatcher.start()
