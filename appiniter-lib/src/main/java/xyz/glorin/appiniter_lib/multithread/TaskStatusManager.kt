@@ -40,6 +40,20 @@ object TaskStatusManager {
         return true
     }
 
+    fun allDependenciesComplete(task: InitTask): Boolean {
+        if (task.dependencies?.isNotEmpty() != true) {
+            return true
+        }
+
+        task.dependencies?.forEach {
+            if (!isTaskComplete(it)) {
+                return false
+            }
+        }
+
+        return true
+    }
+
     interface Listener {
         fun onTaskComplete(identifier: String, costMillis: Long)
     }
