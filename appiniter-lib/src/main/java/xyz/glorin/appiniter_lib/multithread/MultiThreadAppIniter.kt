@@ -2,50 +2,71 @@ package xyz.glorin.appiniter_lib.multithread
 
 import android.os.SystemClock
 import xyz.glorin.appiniter_lib.AbstractAppIniter
+import xyz.glorin.appiniter_lib.DebugLog
+import xyz.glorin.appiniter_lib.InitTask
 
 class MultiThreadAppIniter : AbstractAppIniter(), TaskStatusManager.Listener {
     private val mainThreadExecuter = MainThreadTaskExecuter()
     private val threadedTaskExecuter = ThreadedTaskExecuter()
-    private val allCompleteSignal = AllCompleteSignal()
+    private val taskDispatcher = TaskDispatcher()
+    private val waitingTasks = mutableListOf<InitTask>()
 
     override fun onRun() {
         listener?.onStartExecute()
-
-        TaskDispatcher.start()
-
-        TaskStatusManager.addListener(this)
         val start = SystemClock.uptimeMillis()
 
         if (tasks.isEmpty()) {
             return
         }
 
-        tasks.forEach {
-            if (it.requireMainThread) {
-                mainThreadExecuter.addTask(it)
-            } else {
-                threadedTaskExecuter.addTask(it)
-            }
-        }
+        waitingTasks.addAll(tasks)
+
+        taskDispatcher.start()
+        dispatchTask()
+
+        TaskStatusManager.addListener(this)
 
         threadedTaskExecuter.start()
         mainThreadExecuter.start()
 
-        allCompleteSignal.waitForAllComplete()
-
         listener?.onEndExecute(SystemClock.uptimeMillis() - start)
 
-        TaskDispatcher.quitSafely()
+        taskDispatcher.quitSafely()
         TaskStatusManager.removeListener(this)
+    }
+
+    private fun dispatchTask() {
+        taskDispatcher.runTask {
+            waitingTasks.iterator().run {
+                while (hasNext()) {
+                    val task = next()
+                    val allDependenciesComplete = TaskStatusManager.allDependenciesComplete(task)
+                    DebugLog.d(TAG, "allDep complete of ${task.identifier}: $allDependenciesComplete")
+                    if (allDependenciesComplete) {
+                        DebugLog.d(TAG, "offer task: ${task.identifier}")
+                        if (task.requireMainThread) {
+                            mainThreadExecuter.runTask(task)
+                        } else {
+                            threadedTaskExecuter.runTask(task)
+                        }
+                        remove()
+                    }
+                }
+            }
+        }
     }
 
     override fun onTaskComplete(identifier: String, costMillis: Long) {
         listener?.onTaskComplete(identifier, costMillis)
-        mainThreadExecuter.notifyTaskComplete(identifier)
-        threadedTaskExecuter.notifyTaskComplete(identifier)
 
         if (TaskStatusManager.allComplete(tasks)) {
-            allCompleteSignal.notifyAllComplete()
+            mainThreadExecuter.runTask(AllCompleteSignalTask())
+        } else {
+            dispatchTask()
         }
+    }
+
+    companion object {
+        private const val TAG = "MultiThreadAppIniter"
     }
 }

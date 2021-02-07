@@ -1,14 +1,21 @@
 package xyz.glorin.appiniter_lib.multithread
 
 import android.os.SystemClock
-import xyz.glorin.appiniter_lib.DebugLog
+import androidx.annotation.WorkerThread
+import xyz.glorin.appiniter_lib.InitTask
+import java.util.concurrent.LinkedBlockingDeque
 
-class MainThreadTaskExecuter : AbstractTaskExecuter() {
+class MainThreadTaskExecuter : TaskExecuter {
+    private val queue = LinkedBlockingDeque<InitTask>()
+
     override fun start() {
-        super.start()
-        while (!allComplete()) {
-            DebugLog.d("MainThreadTaskExecuter", "wait next task")
-            nextExecutableTask()?.let {
+        while (true) {
+            val task = queue.take()
+            if (task is AllCompleteSignalTask) {
+                break
+            }
+
+            task?.let {
                 val start = SystemClock.uptimeMillis()
                 it.run()
                 TaskStatusManager.handleTaskCompleted(
@@ -16,8 +23,12 @@ class MainThreadTaskExecuter : AbstractTaskExecuter() {
                     SystemClock.uptimeMillis() - start
                 )
             }
-        }
 
-        DebugLog.d("MainThreadTaskExecuter", "All completed")
+        }
+    }
+
+    @WorkerThread
+    override fun runTask(task: InitTask) {
+        queue.offer(task)
     }
 }
