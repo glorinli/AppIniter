@@ -1,0 +1,44 @@
+apply plugin: 'digital.wup.android-maven-publish'
+
+group = GROUP
+version = VERSION
+def repositoryUrl = version.endsWith('SNAPSHOT') ? SNAPSHOT_REPOSITORY_URL : RELEASE_REPOSITORY_URL
+
+publishing {
+    publications {
+        mavenAar(MavenPublication) {
+            from components.android
+            pom {
+                name = 'App Initer'
+                artifactId = ARTIFACT_ID
+                description = 'App Initer ' + version
+                url = 'https://github.com/glorinli/AppIniter'
+
+                developers {
+                    developer {
+                        id = 'glorinli'
+                        name = 'GlorinLi'
+                        email = 'ligr1991@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = repositoryUrl
+        }
+    }
+}
+
+publish {
+    doLast {
+        println "*********************************************************************************"
+        println "App Initer Uploaded"
+        println "Group           : " + GROUP
+        println "ArtifactId      : " + ARTIFACT_ID
+        println "Version         : " + version
+        println "Repository      : " + repositoryUrl
+        println "*********************************************************************************"
+    }
+}
