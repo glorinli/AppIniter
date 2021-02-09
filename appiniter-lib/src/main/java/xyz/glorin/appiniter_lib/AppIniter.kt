@@ -8,6 +8,10 @@ interface AppIniter {
     fun addTask(task: InitTask)
     fun run()
 
+    fun setLogEnabled(enabled: Boolean) {
+        DebugLog.logEnabled = enabled
+    }
+
     companion object {
 //        private val initer = SimpleAppIniter()
         private val initer = MultiThreadAppIniter()
