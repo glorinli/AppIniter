@@ -36,7 +36,7 @@ class MultiThreadAppIniter : AbstractAppIniter(), TaskStatusManager.Listener {
     }
 
     private fun dispatchTask() {
-        taskDispatcher.runTask {
+        taskDispatcher.runTask(Runnable{
             waitingTasks.iterator().run {
                 while (hasNext()) {
                     val task = next()
@@ -53,7 +53,7 @@ class MultiThreadAppIniter : AbstractAppIniter(), TaskStatusManager.Listener {
                     }
                 }
             }
-        }
+        })
     }
 
     override fun onTaskComplete(identifier: String, costMillis: Long) {
